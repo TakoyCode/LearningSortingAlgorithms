@@ -1,14 +1,12 @@
 // function to make a test array
-function makeRandomIntArray(totalNumbers) {
+function makeRandomIntArray(totalNumbers, maxNum) {
     let nums = [];
     for (let i = 0; i < totalNumbers; i++) {
-        const randomNum = (Math.floor(Math.random() * 100))
+        const randomNum = (Math.floor(Math.random() * maxNum))
         nums.push(randomNum);
     }
     return nums;
 }
-
-const array = makeRandomIntArray(10);
 
 // Bubble Sort (O(n²) time, O(1) space)
 // A simple sorting algorithm that iterates through a list,
@@ -24,7 +22,8 @@ function bubbleSort(array) {
     return array;
 }
 
-// console.log(bubbleSort(makeRandomIntArray(10)));
+// console.log(bubbleSort(makeRandomIntArray(10, 100)));
+
 
 // Insertion Sort (O(n²) time, O(1) space).
 // Sorts an array by building a sorted part of the array one element at a time.
@@ -41,13 +40,12 @@ function insertionSort(array) {
     }
     return array;
 }
-// console.log(array)
-// console.log(insertionSort(array));
+// console.log(insertionSort(makeRandomIntArray(10, 100)));
+
 
 // Quick Sort ( O(n log n) time on average, O(log n) space)
 // Is a "divide and conquer" algorithm that divides the list into smaller lists based on a pivot-element,
 // and then sorts each subarray recursively. 
-
 function quickSort(array, low, high) {
     if (low < high) {
         const pivotIndex = partition(array, low, high);
@@ -58,7 +56,8 @@ function quickSort(array, low, high) {
 }
 
 function partition(array, low, high) {
-    let pivot = array[high];
+    // let pivot = array[high];
+    let pivot = medianOfThree(array, low, high)
     let i = low - 1;
     for (let j = low; j < high; j++) {
         if (array[j] <= pivot) {
@@ -70,4 +69,72 @@ function partition(array, low, high) {
     return i + 1;
 }
 
-console.log(quickSort(array, 0, array.length - 1));
+// Ensures that we get a pivot that is always the median value of low, high and mid.
+// This also fixes that the recursion doesn't become unbalanced,
+//  cause we get a pivot point that is closer to the middle of the array.
+function medianOfThree(array, low, high) {
+    const mid = Math.floor((low + high) / 2);
+    if (array[low] > array[mid]) [array[low], array[mid]] = [array[mid], array[low]];
+    if (array[low] > array[high]) [array[low], array[high]] = [array[high], array[low]];
+    if (array[mid] > array[high]) [array[mid], array[high]] = [array[high], array[mid]];
+    [array[mid], array[high]] = [array[high], array[mid]];
+    return array[high];
+}
+
+// console.log(quickSort(makeRandomIntArray(10, 100), 0, 9));
+
+
+// Trying to test sorting algorithm speeds
+function testBubbleSort(array) {
+    const startTime = performance.now();
+
+    const sortedArray = bubbleSort(array);
+
+    const endTime = performance.now();
+
+    console.log(`BubbleSort: ${endTime - startTime}ms`)
+}
+
+function testInsertionSort(array) {
+    const startTime = performance.now();
+
+    const sortedArray = insertionSort(array);
+
+    const endTime = performance.now();
+
+    console.log(`InsertionSort: ${endTime - startTime}ms`)
+}
+
+function testQuickSort(array) {
+    const startTime = performance.now();
+
+    const sortedArray = quickSort(array, 0, (array.length - 1));
+
+    const endTime = performance.now();
+
+    console.log(`QuickSort: ${endTime - startTime}ms`)
+}
+
+function testSorts(array) {
+    testBubbleSort(array);
+    testInsertionSort(array);
+    testQuickSort(array);
+}
+
+function testSpeeds() {
+    console.log("// Array length: 10")
+    testSorts(makeRandomIntArray(10, 100));
+
+    console.log("// Array length: 100")
+    testSorts(makeRandomIntArray(100, 100));
+
+    console.log("// Array length: 1000")
+    testSorts(makeRandomIntArray(1000, 100));
+
+    console.log("// Array length: 10000")
+    testSorts(makeRandomIntArray(10000, 100));
+
+    console.log("// Array length: 100000")
+    testSorts(makeRandomIntArray(100000, 100));
+}
+testSpeeds();
