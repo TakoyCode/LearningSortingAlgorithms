@@ -22,6 +22,21 @@ function bubbleSort(array) {
     return array;
 }
 
+// Improved with the functionality that it can exit the loop early if no swaps were done.
+function bubbleSortExitEarly(array) {
+    for (let i = 0; i < (array.length - 1); i++) {
+        let done = true;
+        for (let j = 0; j < (array.length - i - 1); j++) {
+            if (array[j] > array[j + 1]) {
+                [array[j], array[j + 1]] = [array[j + 1], array[j]]
+                done = false;
+            }
+        }
+        if (done) break;
+    }
+    return array;
+}
+
 // console.log(bubbleSort(makeRandomIntArray(10, 100)));
 
 
@@ -83,58 +98,84 @@ function medianOfThree(array, low, high) {
 
 // console.log(quickSort(makeRandomIntArray(10, 100), 0, 9));
 
+// Stable version of quick sort
+function stableQuickSort(array) {
+    // Returns if the array is already sorted
+    if (array.length <= 1) return array;
 
-// Trying to test sorting algorithm speeds
-function testBubbleSort(array) {
-    const startTime = performance.now();
+    // Choses the pivot
+    const pivotIndex = Math.floor(array.length / 2);
+    // Could use a medianOfThree like function here also to improve the chosen pivot
+    const pivot = array[pivotIndex];
 
-    const sortedArray = bubbleSort(array);
+    // Partition
+    const less = [];
+    const equal = [];
+    const greater = [];
 
-    const endTime = performance.now();
+    for (const element of array) {
+        if (element < pivot) {
+            less.push(element);
+        }
+        else if (element > pivot) {
+            greater.push(element);
+        }
+        else {
+            equal.push(element);
+        }
+    }
 
-    console.log(`BubbleSort: ${endTime - startTime}ms`)
+    return [...stableQuickSort(less), ...equal, ...stableQuickSort(greater)];
 }
+// console.log(stableQuickSort(makeRandomIntArray(100, 100)));
 
-function testInsertionSort(array) {
-    const startTime = performance.now();
 
-    const sortedArray = insertionSort(array);
-
-    const endTime = performance.now();
-
-    console.log(`InsertionSort: ${endTime - startTime}ms`)
-}
-
+// Functions to test sorting algorithm speeds
 function testQuickSort(array) {
+    const arr = [...array];
     const startTime = performance.now();
 
-    const sortedArray = quickSort(array, 0, (array.length - 1));
+    const sortedArray = quickSort(arr, 0, (arr.length - 1));
 
     const endTime = performance.now();
-
-    console.log(`QuickSort: ${endTime - startTime}ms`)
+    console.log(`quickSort: ${(endTime - startTime).toFixed(4)}ms`)
 }
 
-function testSorts(array) {
-    testBubbleSort(array);
-    testInsertionSort(array);
+function testSort(sortFunction, array) {
+    const arr = [...array];
+    const startTime = performance.now();
+
+    const sortedArray = sortFunction(arr);
+
+    const endTime = performance.now();
+    console.log(`${sortFunction.name}: ${(endTime - startTime).toFixed(4)}ms`)
+}
+
+function testAllSorts(array) {
+    testSort(bubbleSort, array);
+    testSort(bubbleSortExitEarly, array);
+    testSort(insertionSort, array);
+    testSort(stableQuickSort, array);
     testQuickSort(array);
 }
 
 function testSpeeds() {
     console.log("// Array length: 10")
-    testSorts(makeRandomIntArray(10, 100));
+    testAllSorts(makeRandomIntArray(10, 100));
 
-    console.log("// Array length: 100")
-    testSorts(makeRandomIntArray(100, 100));
+    console.log("\n// Array length: 100")
+    testAllSorts(makeRandomIntArray(100, 100));
 
-    console.log("// Array length: 1000")
-    testSorts(makeRandomIntArray(1000, 100));
+    console.log("\n// Array length: 1000")
+    testAllSorts(makeRandomIntArray(1000, 100));
 
-    console.log("// Array length: 10000")
-    testSorts(makeRandomIntArray(10000, 100));
+    console.log("\n// Array length: 10000")
+    testAllSorts(makeRandomIntArray(10000, 100));
 
-    console.log("// Array length: 100000")
-    testSorts(makeRandomIntArray(100000, 100));
+    // console.log("// Array length: 100000")
+    // testSorts(makeRandomIntArray(100000, 100));
+
+    // console.log("// Array length: 1000000")
+    // testSorts(makeRandomIntArray(1000000, 100));
 }
 testSpeeds();
